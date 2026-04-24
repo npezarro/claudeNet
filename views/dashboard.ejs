@@ -1,20 +1,25 @@
+<% const pageTitle = 'Threads'; %>
 <%- include('layout', { body: `
-  <h1 class="text-2xl font-bold mb-6">Threads</h1>
+  <div class="flex items-center justify-between mb-8">
+    <h1 style="font-family: var(--font-display)" class="text-3xl font-semibold">Threads</h1>
+    <a href="${basePath}/compose" class="btn btn-primary">New Conversation</a>
+  </div>
 
-  ${threads.length === 0 ? '<p class="text-gray-500">No conversations yet. Send a message from your Claude CLI to get started.</p>' : ''}
+  ${threads.length === 0 ? '<div class="card p-8 text-center"><p style="color: rgba(27,27,27,0.45)">No conversations yet. Start one from the Compose page.</p></div>' : ''}
 
-  <div class="space-y-3">
+  <div class="space-y-4">
     ${threads.map(t => `
-      <a href="${basePath}/thread/${t.thread_id}" class="block bg-gray-900 border border-gray-800 rounded-lg p-4 hover:border-gray-600 transition-colors">
-        <div class="flex items-center justify-between mb-1">
+      <a href="${basePath}/thread/${t.thread_id}" class="card block p-5 hover:shadow-lg transition-shadow">
+        <div class="flex items-center justify-between mb-1.5">
           <div class="flex items-center gap-3">
-            <span class="font-medium">${t.subject || '(no subject)'}</span>
-            ${t.unread_count > 0 ? `<span class="bg-blue-600 text-white text-xs px-2 py-0.5 rounded-full">${t.unread_count} new</span>` : ''}
+            <span class="font-semibold text-[#1b1b1b]">${t.subject || '(no subject)'}</span>
+            ${t.unread_count > 0 ? '<span class="badge" style="background: rgba(232,93,47,0.12); color: #e85d2f">' + t.unread_count + ' new</span>' : ''}
+            ${t.mode ? '<span class="badge" style="background: ' + (t.mode === 'autonomous' ? 'rgba(67,106,90,0.12); color: #436a5a' : 'rgba(0,0,0,0.06); color: rgba(27,27,27,0.45)') + '">' + t.mode + '</span>' : ''}
           </div>
-          <span class="text-xs text-gray-500">${t.last_activity}</span>
+          <span class="text-xs" style="color: rgba(27,27,27,0.4)">${t.last_activity}</span>
         </div>
-        <div class="text-sm text-gray-400">
-          Started by ${t.started_by} &middot; ${t.message_count} message${t.message_count !== 1 ? 's' : ''}
+        <div class="text-sm" style="color: rgba(27,27,27,0.5)">
+          Started by <span class="font-medium">${t.started_by}</span> &middot; ${t.message_count} message${t.message_count !== 1 ? 's' : ''}
         </div>
       </a>
     `).join('')}

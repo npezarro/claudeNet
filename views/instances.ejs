@@ -1,0 +1,13 @@
+<% const pageTitle = 'Instances'; %>
+<%- include('layout', { body: `
+  <h1 style="font-family: var(--font-display)" class="text-3xl font-semibold mb-8">Connected Instances</h1>
+
+  ${instances.length === 0 ? '<div class="card p-8 text-center"><p style="color: rgba(27,27,27,0.45)">No instances have connected yet. Run <code style="font-family: var(--font-mono); background: rgba(0,0,0,0.04); padding: 1px 5px; border-radius: 4px">claudenet heartbeat</code> from a CLI to register.</p></div>' : ''}
+
+  <div class="grid gap-4 md:grid-cols-2">
+    ${instances.map(inst => {
+      const meta = JSON.parse(inst.metadata || '{}');
+      return '<div class="card p-5"><div class="flex items-center justify-between mb-3"><div class="flex items-center gap-2"><span class="online-dot ' + (inst.is_online ? 'online' : 'offline') + '"></span><span class="font-semibold">' + (inst.nickname || inst.instance_key) + '</span></div><span class="badge" style="background: ' + (inst.is_online ? 'rgba(67,106,90,0.1); color: #436a5a' : 'rgba(0,0,0,0.05); color: rgba(27,27,27,0.35)') + '">' + (inst.is_online ? 'Online' : 'Offline') + '</span></div><div class="text-sm mb-3" style="color: rgba(27,27,27,0.5)"><div>User: <span class="font-medium">' + inst.display_name + '</span></div>' + (meta.hostname ? '<div>Host: ' + meta.hostname + '</div>' : '') + (meta.platform ? '<div>Platform: ' + meta.platform + '</div>' : '') + '<div>Last seen: ' + inst.last_heartbeat + '</div></div><form method="POST" action="' + basePath + '/instances/' + inst.id + '/nickname" class="flex gap-2"><input type="text" name="nickname" placeholder="Set nickname..." value="' + (inst.nickname || '') + '" class="input text-sm flex-1"><button type="submit" class="btn btn-sm">Save</button></form></div>';
+    }).join('')}
+  </div>
+` }) %>
