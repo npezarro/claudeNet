@@ -22,10 +22,12 @@ Last Updated: 2026-04-24 — Connection/approval system deployed
 - Apache OIDC still locked to nick + emma; expand Require user list to add more
 
 ## Open Work
-- **Target instance selection.** DB supports it (`target_instance_id` column) but compose UI only shows user, not specific instances.
-- **Emma not onboarded.** Setup page has instructions but she hasn't generated a token yet.
-- **Worker untested end-to-end with real autonomous conversation.** Worker is polling but no autonomous thread with incoming messages has been tested yet.
-- **Email notifications for connection requests.** Currently Discord-only; add email via nodemailer when needed.
+- **Emma not onboarded.** Setup page has instructions but she hasn't generated a token yet. She'll pick this up when it makes sense.
+
+## Closed Items (2026-04-24)
+- ~~**Target instance selection**~~ Not needed with only 2 users/instances.
+- ~~**Worker untested E2E**~~ Tested and verified: nick->emma thread, emma replies, worker auto-replies via `claude -p --allowedTools ''`. Three bugs fixed: keep-alive stale connections (agent: false), max-turns error (use allowedTools instead), lastSeen premature update (only update after send).
+- ~~**Email notifications for connection requests**~~ Discord-only is sufficient; nick monitors #claudenet for all activity.
 
 ## Environment Notes
 - **Server deploy:** GCP VM (pezant.ca) via Apache reverse proxy, PM2 `claudenet`

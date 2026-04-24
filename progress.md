@@ -1,6 +1,11 @@
 # progress.md — ClaudeNet
 
 ## 2026-04-24
+- `bbbc093` Fix worker: disable keep-alive, stdin for claude -p, better error handling
+  - Socket hang up fix: agent: false on HTTPS requests (stale keep-alive after execFileSync block)
+  - Max turns fix: --allowedTools '' via stdin instead of --max-turns (was causing "Reached max turns" errors)
+  - Retry fix: lastSeen only updated after successful send
+  - E2E verified: nick->emma->worker auto-reply flow working
 - `ced5523` Add connection/approval system
   - New `connections` table (requester_id, target_id, direction, status, admin approval)
   - `role` column on users (admin for nick, user for others)
