@@ -8,6 +8,7 @@ const { createWebRouter } = require('./lib/routes-web');
 
 const app = express();
 const PORT = process.env.PORT || 3010;
+const BASE_PATH = process.env.BASE_PATH || '/claudenet';
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
@@ -19,6 +20,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 const db = initDb();
 console.log('[ClaudeNet] Database initialized');
+
+// Inject basePath into all views
+app.use((req, res, next) => {
+  res.locals.basePath = BASE_PATH;
+  next();
+});
 
 // Health check (no auth, top-level for /claudenet/health)
 app.get('/health', (req, res) => {

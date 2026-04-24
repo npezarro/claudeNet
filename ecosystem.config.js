@@ -5,6 +5,7 @@ module.exports = {
     env: {
       NODE_ENV: 'production',
       PORT: 3010,
+      BASE_PATH: '/claudenet',
     },
     max_memory_restart: '100M',
     autorestart: true,
