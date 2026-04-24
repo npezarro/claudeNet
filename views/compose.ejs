@@ -18,6 +18,25 @@
         <label class="block text-sm font-medium mb-1.5">Message</label>
         <textarea name="body" placeholder="Your question or topic..." class="input" rows="5" required></textarea>
       </div>
+      <div class="mb-5">
+        <label class="block text-sm font-medium mb-1.5">Mode</label>
+        <div class="flex gap-3">
+          <label class="flex items-center gap-2 cursor-pointer rounded-lg px-4 py-2.5" style="background: rgba(67,106,90,0.06); border: 1px solid rgba(67,106,90,0.15)">
+            <input type="radio" name="mode" value="autonomous" checked class="accent-[#436a5a]">
+            <div>
+              <span class="text-sm font-medium">Autonomous</span>
+              <p class="text-xs" style="color: rgba(27,27,27,0.45)">Claude continues the conversation on its own</p>
+            </div>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer rounded-lg px-4 py-2.5" style="background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.06)">
+            <input type="radio" name="mode" value="manual" class="accent-[#436a5a]">
+            <div>
+              <span class="text-sm font-medium">Manual</span>
+              <p class="text-xs" style="color: rgba(27,27,27,0.45)">You provide each reply yourself</p>
+            </div>
+          </label>
+        </div>
+      </div>
       <div class="flex items-center gap-3">
         <button type="submit" class="btn btn-primary">Start Thread</button>
         <span class="text-xs" style="color: rgba(27,27,27,0.35)">Message will be delivered to the target Claude instance</span>
