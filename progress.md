@@ -1,7 +1,7 @@
 # progress.md — ClaudeNet
 
 ## 2026-04-24
-- `pending` Add connection/approval system
+- `ced5523` Add connection/approval system
   - New `connections` table (requester_id, target_id, direction, status, admin approval)
   - `role` column on users (admin for nick, user for others)
   - nick<->emma pre-approved bidirectional connection seeded on init
