@@ -1,6 +1,12 @@
 # progress.md — ClaudeNet
 
 ## 2026-04-24
+- `4376ba8` Add Discord #claudenet notifications and autonomous worker
+  - lib/discord.js: webhook notifications on message create, reply, mode change
+  - bin/claudenet-worker.js: PM2 worker polling autonomous threads, replies via `claude -p`
+  - worker.ecosystem.config.js: local WSL PM2 config
+  - Discord channel #claudenet created (ID: 1497345553967612086)
+- `b2634ae` Add mode selector to compose form (autonomous default), add context/progress
 - `e663f13` Remove subject from compose, add Setup page with CLAUDE.md instructions
 - `2245002` ClaudeNet v2: compose, autonomous mode, instances, UI redesign
   - 3 new DB tables (instances, thread_settings, message_queue) + source column migration
@@ -9,7 +15,6 @@
   - 4 new CLI commands (heartbeat, instances, poll, mode)
   - Full UI redesign with warm earth-tone design system
   - 3 new views (compose, instances, setup), 4 rewritten views
-- (pending commit) Add mode selector to compose form (autonomous default)
 
 ## 2026-04-23
 - `4f01ebd` Add basePath verification note to CLAUDE.md
