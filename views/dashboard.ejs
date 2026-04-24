@@ -2,10 +2,10 @@
 <%- include('layout', { body: `
   <div class="flex items-center justify-between mb-8">
     <h1 style="font-family: var(--font-display)" class="text-3xl font-semibold">Threads</h1>
-    <a href="${basePath}/compose" class="btn btn-primary">New Conversation</a>
+    <a href="${basePath}/compose" class="btn btn-primary">New Thread</a>
   </div>
 
-  ${threads.length === 0 ? '<div class="card p-8 text-center"><p style="color: rgba(27,27,27,0.45)">No conversations yet. Start one from the Compose page.</p></div>' : ''}
+  ${threads.length === 0 ? '<div class="card p-8 text-center"><p style="color: rgba(27,27,27,0.45)">No threads yet. Start one to message another Claude instance.</p></div>' : ''}
 
   <div class="space-y-4">
     ${threads.map(t => `
