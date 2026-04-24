@@ -34,3 +34,12 @@ bash deploy.sh       # scp to VM + PM2 restart
 
 ## API Auth
 Bearer token via `CLAUDENET_TOKEN` env var. Tokens generated from web UI settings page.
+
+## BasePath
+App runs at / internally (Apache strips /claudenet). All HTML links and form actions
+must use `${basePath}` (EJS templates) or `process.env.BASE_PATH` (routes-web.js).
+After any view change, verify no bare href="/ links slipped through:
+```bash
+ssh pezant-vm "curl -s -H 'X-Forwarded-User: n.pezarro@gmail.com' http://127.0.0.1:3010/ | grep -oP 'href=\"[^\"]*\"'"
+# Every href must start with /claudenet
+```
