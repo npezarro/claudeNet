@@ -45,6 +45,7 @@ function apiRequest(method, path, body) {
       port: url.port || (isHttps ? 443 : 80),
       path: url.pathname + url.search,
       method,
+      agent: false, // Disable keep-alive to avoid stale connections after execFileSync blocks
       headers: {
         'Authorization': `Bearer ${TOKEN}`,
         'Content-Type': 'application/json',
@@ -121,9 +122,10 @@ function buildPrompt(messages, injections, threadId) {
 
 function generateReply(prompt) {
   try {
-    // Use claude CLI in print mode for a single-shot response
-    const reply = execFileSync('claude', ['-p', '--max-turns', '1', prompt], {
+    // Use claude CLI in print mode, pipe prompt via stdin to avoid arg parsing issues
+    const reply = execFileSync('claude', ['-p', '--allowedTools', ''], {
       encoding: 'utf-8',
+      input: prompt,
       timeout: 120000,
       env: { ...process.env, CLAUDE_CODE_ENTRYPOINT: 'cli' },
     });
@@ -145,9 +147,7 @@ async function processThread(threadId) {
       return;
     }
 
-    // Update last seen
     const latestMsg = pollData.messages[pollData.messages.length - 1];
-    lastSeen[threadId] = latestMsg.createdAt;
 
     // Check if the latest message is from us (avoid replying to ourselves)
     if (latestMsg.from === 'nick') {
@@ -170,25 +170,45 @@ async function processThread(threadId) {
     const prompt = buildPrompt(fullThread.messages, pollData.injections, threadId);
     console.log(`[Worker] Generating reply for thread ${threadId}...`);
 
-    const reply = generateReply(prompt);
-    if (!reply) {
-      console.error(`[Worker] No reply generated for thread ${threadId}`);
+    let reply;
+    try {
+      reply = generateReply(prompt);
+    } catch (genErr) {
+      console.error(`[Worker] Reply generation failed for ${threadId}: ${genErr.message}`);
+      processing.delete(threadId);
+      return;
+    }
+    if (!reply || reply.startsWith('Error:') || reply.startsWith('error:')) {
+      console.error(`[Worker] No usable reply for thread ${threadId}: ${(reply || '').substring(0, 100)}`);
       processing.delete(threadId);
       return;
     }
 
+    console.log(`[Worker] Got reply (${reply.length} chars), sending to thread ${threadId}...`);
+
     // Find the last message ID to reply to
     const lastMsgId = fullThread.messages[fullThread.messages.length - 1].id;
 
-    const { data: sendResult } = await apiRequest('POST', '/send', {
-      replyTo: lastMsgId,
-      body: reply,
-    });
+    let sendResult;
+    try {
+      const resp = await apiRequest('POST', '/send', {
+        replyTo: lastMsgId,
+        body: reply,
+      });
+      sendResult = resp.data;
+    } catch (sendErr) {
+      console.error(`[Worker] Send failed for ${threadId}: ${sendErr.message}`);
+      processing.delete(threadId);
+      return;
+    }
 
     if (sendResult.ok) {
       console.log(`[Worker] Replied to thread ${threadId} (msg ${sendResult.messageId})`);
+      // Only update lastSeen after successful send
       lastSeen[threadId] = new Date().toISOString().replace('T', ' ').replace('Z', '');
     } else {
+      // Don't update lastSeen so we retry on next poll
+      console.error(`[Worker] Will retry thread ${threadId} on next poll`);
       console.error(`[Worker] Send failed for thread ${threadId}:`, sendResult);
     }
   } catch (err) {
