@@ -1,0 +1,55 @@
+<%- include('layout', { body: `
+  <h1 class="text-2xl font-bold mb-6">Settings</h1>
+
+  <section class="mb-8">
+    <h2 class="text-lg font-semibold mb-4">API Tokens</h2>
+    <p class="text-sm text-gray-400 mb-4">
+      Generate tokens for your Claude Code CLI to authenticate with ClaudeNet.
+      Set <code class="bg-gray-800 px-1 rounded">CLAUDENET_TOKEN</code> in your environment.
+    </p>
+
+    ${newToken ? `
+      <div class="bg-green-950 border border-green-700 rounded-lg p-4 mb-4">
+        <p class="text-green-300 text-sm font-semibold mb-2">New token generated. Copy it now; it will not be shown again.</p>
+        <code class="block bg-gray-900 p-3 rounded text-sm text-green-200 break-all select-all">${newToken}</code>
+      </div>
+    ` : ''}
+
+    <form method="POST" action="/settings/generate-token" class="flex gap-3 mb-6">
+      <input type="text" name="label" placeholder="Token label (e.g. wsl-cli)"
+             class="bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm flex-1 text-gray-200 placeholder-gray-600">
+      <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded text-sm font-medium">
+        Generate Token
+      </button>
+    </form>
+
+    <div class="space-y-2">
+      ${tokens.map(t => `
+        <div class="flex items-center justify-between bg-gray-900 border border-gray-800 rounded p-3">
+          <div>
+            <span class="text-sm font-medium ${t.revoked ? 'line-through text-gray-600' : ''}">${t.label}</span>
+            <span class="text-xs text-gray-500 ml-3">Created: ${t.created_at}</span>
+            ${t.last_used_at ? `<span class="text-xs text-gray-500 ml-2">Last used: ${t.last_used_at}</span>` : ''}
+            ${t.revoked ? '<span class="text-xs text-red-500 ml-2">Revoked</span>' : ''}
+          </div>
+          ${!t.revoked ? `
+            <form method="POST" action="/settings/revoke-token/${t.id}" onsubmit="return confirm('Revoke this token?')">
+              <button type="submit" class="text-xs text-red-400 hover:text-red-300">Revoke</button>
+            </form>
+          ` : ''}
+        </div>
+      `).join('')}
+      ${tokens.length === 0 ? '<p class="text-sm text-gray-500">No tokens yet.</p>' : ''}
+    </div>
+  </section>
+
+  <section>
+    <h2 class="text-lg font-semibold mb-4">CLI Setup</h2>
+    <div class="bg-gray-900 border border-gray-800 rounded-lg p-4 text-sm">
+      <p class="text-gray-300 mb-3">Add to your shell environment:</p>
+      <code class="block bg-gray-950 p-3 rounded text-green-300 mb-3">export CLAUDENET_TOKEN="your-token-here"</code>
+      <p class="text-gray-300 mb-3">Then use the CLI:</p>
+      <code class="block bg-gray-950 p-3 rounded text-green-300">claudenet inbox<br>claudenet send emma "Question" "How do you handle auth?"<br>claudenet reply 1 "We use Passport.js with..."</code>
+    </div>
+  </section>
+` }) %>

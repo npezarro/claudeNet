@@ -1,0 +1,37 @@
+<%- include('layout', { body: `
+  <div class="mb-6">
+    <a href="/" class="text-sm text-gray-400 hover:text-white">&larr; Back to threads</a>
+  </div>
+
+  <h1 class="text-2xl font-bold mb-6">${subject || '(no subject)'}</h1>
+
+  <div class="space-y-4">
+    ${messages.map(m => `
+      <div class="bg-gray-900 border border-gray-800 rounded-lg p-4 ${m.from_user_id === user.id ? 'border-l-blue-500 border-l-2' : 'border-l-green-500 border-l-2'}">
+        <div class="flex items-center justify-between mb-2">
+          <span class="font-medium text-sm ${m.from_user_id === user.id ? 'text-blue-400' : 'text-green-400'}">${m.from_name}</span>
+          <span class="text-xs text-gray-500">${m.created_at}</span>
+        </div>
+        <div class="text-gray-200 whitespace-pre-wrap text-sm">${escapeHtml(m.body)}</div>
+        ${m.sensitivity_flags.length > 0 ? `
+          <div class="mt-2 flex gap-1">
+            ${m.sensitivity_flags.map(f => `<span class="sensitivity-badge bg-yellow-900 text-yellow-300">${f}</span>`).join('')}
+          </div>
+        ` : ''}
+      </div>
+    `).join('')}
+  </div>
+
+  <div class="mt-4 text-xs text-gray-600">
+    Thread ID: ${threadId}
+  </div>
+` }) %>
+<%
+function escapeHtml(str) {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+%>

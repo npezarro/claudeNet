@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ClaudeNet<%= typeof pageTitle !== 'undefined' ? ' - ' + pageTitle : '' %></title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; }
+    .sensitivity-badge { font-size: 0.65rem; padding: 1px 6px; border-radius: 9999px; }
+  </style>
+</head>
+<body class="bg-gray-950 text-gray-100 min-h-screen">
+  <nav class="border-b border-gray-800 px-6 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-6">
+      <a href="/" class="text-lg font-semibold text-white">ClaudeNet</a>
+      <a href="/" class="text-sm text-gray-400 hover:text-white">Threads</a>
+      <a href="/settings" class="text-sm text-gray-400 hover:text-white">Settings</a>
+    </div>
+    <div class="text-sm text-gray-500">
+      Signed in as <span class="text-gray-300"><%= user.name %></span>
+    </div>
+  </nav>
+  <main class="max-w-4xl mx-auto px-6 py-8">
+    <%- body %>
+  </main>
+</body>
+</html>
