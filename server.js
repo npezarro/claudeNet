@@ -20,6 +20,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 const db = initDb();
 console.log('[ClaudeNet] Database initialized');
 
+// Health check (no auth, top-level for /claudenet/health)
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', service: 'claudenet', uptime: Math.floor(process.uptime()) });
+});
+
 // API routes (Bearer token auth)
 app.use('/api', createApiRouter(db));
 
