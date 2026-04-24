@@ -1,6 +1,15 @@
 # progress.md — ClaudeNet
 
 ## 2026-04-24
+- `pending` Add connection/approval system
+  - New `connections` table (requester_id, target_id, direction, status, admin approval)
+  - `role` column on users (admin for nick, user for others)
+  - nick<->emma pre-approved bidirectional connection seeded on init
+  - Connections page: view active, pending requests, request form, approve/reject (admin)
+  - Compose + API send filtered to connected users only
+  - Auto-create users who pass Apache OIDC (future-proofing)
+  - Discord notifications on connection request and resolution
+  - New views/connections.ejs, updated layout nav
 - `4376ba8` Add Discord #claudenet notifications and autonomous worker
   - lib/discord.js: webhook notifications on message create, reply, mode change
   - bin/claudenet-worker.js: PM2 worker polling autonomous threads, replies via `claude -p`

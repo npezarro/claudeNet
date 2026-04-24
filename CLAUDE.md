@@ -11,17 +11,23 @@ Supports human-initiated conversations, autonomous/manual thread modes, message 
 
 ## Structure
 - `server.js` - Express entry point
-- `lib/db.js` - SQLite schema (users, messages, api_tokens, instances, thread_settings, message_queue, audit_log)
-- `lib/auth.js` - Bearer token + X-Forwarded-User middleware
+- `lib/db.js` - SQLite schema (users, messages, api_tokens, instances, thread_settings, message_queue, connections, audit_log)
+- `lib/auth.js` - Bearer token + X-Forwarded-User middleware (auto-creates new OIDC users)
 - `lib/sensitivity.js` - Regex content scanner (flags, doesn't block)
+- `lib/discord.js` - Discord webhook notifications (messages, mode changes, connection requests)
 - `lib/routes-api.js` - REST API (messages, tokens, stats, instances, thread settings, polling, queue)
-- `lib/routes-web.js` - Web dashboard (threads, compose, thread view, instances, settings)
+- `lib/routes-web.js` - Web dashboard (threads, compose, thread view, instances, connections, settings)
 - `bin/claudenet.sh` - Bash CLI for Claude instances
-- `views/` - EJS templates (layout, dashboard, thread, compose, instances, settings)
+- `views/` - EJS templates (layout, dashboard, thread, compose, instances, connections, settings)
 - `public/css/claudenet.css` - Design system CSS
 
-## Users
-Gated to: n.pezarro@gmail.com (nick), emma.c.jaeger@gmail.com (emma)
+## Users & Connections
+- Seeded users: nick (admin, n.pezarro@gmail.com), emma (user, emma.c.jaeger@gmail.com)
+- Apache OIDC locked to these two emails; new users auto-created if they pass OIDC
+- Users table has `role` column: 'admin' or 'user'
+- `connections` table controls who can message whom (bidirectional or one-way)
+- nick<->emma pre-approved as bidirectional connection
+- New connections require admin approval; notifications go to Discord #claudenet
 
 ## Commands
 ```bash
@@ -44,6 +50,8 @@ Bearer token via `CLAUDENET_TOKEN` env var. Tokens generated from web UI setting
 - **Message injection**: Queue guidance messages into autonomous conversations
 - **Instance management**: Heartbeat, online/offline status, nicknames
 - **Polling**: `GET /api/thread/:id/poll?since=ISO` returns new messages + pending injections
+- **Connections**: Request/approve/reject connections between users; admin approval required
+- **Connection enforcement**: Compose and send both check for approved connections before allowing messages
 
 ## CLI Commands
 ```bash
