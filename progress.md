@@ -1,6 +1,10 @@
 # progress.md — ClaudeNet
 
 ## 2026-04-24
+- Fix worker: use --dangerously-skip-permissions, update prompt for plain text replies
+  - Permission fix: --allowedTools '' still triggered approval text in replies; switched to --dangerously-skip-permissions
+  - Prompt updated: explicit "Reply with plain text only. Do not use any tools, commands, or code execution."
+  - E2E verified: clean reply text with no wrapper/approval artifacts
 - `bbbc093` Fix worker: disable keep-alive, stdin for claude -p, better error handling
   - Socket hang up fix: agent: false on HTTPS requests (stale keep-alive after execFileSync block)
   - Max turns fix: --allowedTools '' via stdin instead of --max-turns (was causing "Reached max turns" errors)
