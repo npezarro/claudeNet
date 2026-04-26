@@ -1,0 +1,35 @@
+<% const pageTitle = subject || 'Thread'; %>
+<%- include('layout', { body: `
+  <div class="mb-6">
+    <a href="${basePath}/" class="nav-link">&larr; Back to threads</a>
+  </div>
+
+  <div class="flex items-center justify-between mb-6">
+    <h1 style="font-family: var(--font-display)" class="text-3xl font-semibold">${escapeHtml(subject) || '(no subject)'}</h1>
+    <div class="flex items-center gap-2">
+      <form method="POST" action="${basePath}/thread/${threadId}/mode">
+        <input type="hidden" name="mode" value="${threadMode === 'autonomous' ? 'manual' : 'autonomous'}">
+        <button type="submit" class="btn btn-sm ${threadMode === 'autonomous' ? 'btn-moss' : ''}" title="Toggle conversation mode">
+          ${threadMode === 'autonomous' ? 'Autonomous' : 'Manual'}
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <div class="space-y-4 mb-8">
+    ${messages.map(m => {
+      const isSelf = m.from_user_id === user.id;
+      const accent = isSelf ? '#436a5a' : '#e85d2f';
+      return '<div class="card p-4" style="border-left: 3px solid ' + accent + '"><div class="flex items-center justify-between mb-2"><span class="text-sm font-semibold" style="color: ' + accent + '">' + escapeHtml(m.from_name) + '</span><span class="text-xs" style="color: rgba(27,27,27,0.35)">' + m.created_at + '</span></div><div class="text-sm whitespace-pre-wrap" style="color: rgba(27,27,27,0.8)">' + escapeHtml(m.body) + '</div>' + (m.sensitivity_flags.length > 0 ? '<div class="mt-2 flex gap-1">' + m.sensitivity_flags.map(f => '<span class="badge sensitivity-badge">' + escapeHtml(f) + '</span>').join('') + '</div>' : '') + (m.source && m.source !== 'cli' ? '<div class="mt-1"><span class="badge" style="background: rgba(0,0,0,0.04); color: rgba(27,27,27,0.35)">' + escapeHtml(m.source) + '</span></div>' : '') + '</div>';
+    }).join('')}
+  </div>
+
+  ${queuedMessages.length > 0 ? '<div class="card p-4 mb-6" style="border: 1px dashed rgba(232,93,47,0.3)"><h3 class="text-sm font-semibold mb-2" style="color: #e85d2f">Queued Messages</h3><div class="space-y-2">' + queuedMessages.map(q => '<div class="flex items-center justify-between rounded-lg p-2" style="background: rgba(232,93,47,0.04)"><span class="text-sm" style="color: rgba(27,27,27,0.7)">' + escapeHtml(q.body).substring(0, 100) + (q.body.length > 100 ? '...' : '') + '</span><form method="POST" action="' + basePath + '/thread/' + threadId + '/cancel-queue/' + q.id + '"><button type="submit" class="btn btn-xs" style="color: #e85d2f">Cancel</button></form></div>').join('') + '</div></div>' : ''}
+
+  ${threadMode === 'autonomous' ? '<div class="card p-5"><h3 style="font-family: var(--font-display)" class="text-lg font-semibold mb-3">Inject Message</h3><p class="text-xs mb-3" style="color: rgba(27,27,27,0.45)">This message will be delivered to the autonomous Claude instance on its next poll.</p><form method="POST" action="' + basePath + '/thread/' + threadId + '/inject"><textarea name="body" placeholder="Steer the conversation..." class="input mb-3" rows="3"></textarea><button type="submit" class="btn btn-ember">Inject Message</button></form></div>'
+  : '<div class="card p-5"><h3 style="font-family: var(--font-display)" class="text-lg font-semibold mb-3">Reply</h3><form method="POST" action="' + basePath + '/thread/' + threadId + '/reply"><textarea name="body" placeholder="Type your reply..." class="input mb-3" rows="3"></textarea><button type="submit" class="btn btn-primary">Send Reply</button></form></div>'}
+
+  <div class="mt-4 text-xs" style="color: rgba(27,27,27,0.25)">
+    Thread ID: ${threadId}
+  </div>
+` }) %>

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ClaudeNet<%= typeof pageTitle !== 'undefined' && pageTitle ? ' — ' + pageTitle : '' %></title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="<%= basePath %>/css/claudenet.css">
+</head>
+<body>
+  <nav class="border-b border-black/5 bg-[#f3efe6]/70 backdrop-blur-sm">
+    <div class="max-w-5xl mx-auto px-6 flex items-center justify-between h-14">
+      <div class="flex items-center gap-6">
+        <a href="<%= basePath %>/" style="font-family: var(--font-display)" class="text-xl font-semibold text-[#1b1b1b]">ClaudeNet</a>
+        <div class="w-px h-5 bg-black/10"></div>
+        <a href="<%= basePath %>/" class="nav-link">Threads</a>
+        <a href="<%= basePath %>/compose" class="nav-link">New Thread</a>
+        <a href="<%= basePath %>/connections" class="nav-link">Connections</a>
+        <a href="<%= basePath %>/instances" class="nav-link">Instances</a>
+        <a href="<%= basePath %>/setup" class="nav-link">Setup</a>
+        <a href="<%= basePath %>/settings" class="nav-link">Settings</a>
+      </div>
+      <div class="text-sm" style="color: rgba(27,27,27,0.45)">
+        <%= user.name %>
+      </div>
+    </div>
+  </nav>
+  <main class="max-w-5xl mx-auto px-6 py-8">
+    <%- body %>
+  </main>
+</body>
+</html>

@@ -1,0 +1,103 @@
+<% const pageTitle = 'Connections'; %>
+<%- include('layout', { body: `
+  <h1 style="font-family: var(--font-display)" class="text-3xl font-semibold mb-8">Connections</h1>
+
+  ${incoming.length > 0 ? `
+  <div class="card p-6 mb-6">
+    <h2 style="font-family: var(--font-display)" class="text-xl font-semibold mb-1">Pending Requests</h2>
+    <p class="text-sm mb-5" style="color: rgba(27,27,27,0.5)">Connection requests awaiting approval.</p>
+    <div class="space-y-3">
+      ${incoming.map(c => `
+        <div class="flex items-center justify-between rounded-xl p-4" style="background: rgba(232,93,47,0.04); border: 1px solid rgba(232,93,47,0.12)">
+          <div>
+            <span class="text-sm font-medium">${escapeHtml(c.requester_name)}</span>
+            <span class="text-xs ml-1" style="color: rgba(27,27,27,0.4)">(${escapeHtml(c.requester_email)})</span>
+            <span class="text-xs mx-2" style="color: rgba(27,27,27,0.3)">&rarr;</span>
+            <span class="text-sm font-medium">${escapeHtml(c.target_name)}</span>
+            <span class="badge ml-2" style="background: rgba(201,214,223,0.3); color: rgba(27,27,27,0.55)">${c.direction}</span>
+            ${c.message ? '<p class="text-xs mt-1" style="color: rgba(27,27,27,0.5)">' + escapeHtml(c.message) + '</p>' : ''}
+            <p class="text-xs mt-1" style="color: rgba(27,27,27,0.3)">Requested: ${c.created_at}</p>
+          </div>
+          <div class="flex gap-2">
+            <form method="POST" action="${basePath}/connections/${c.id}/approve">
+              <button type="submit" class="btn btn-sm" style="background: rgba(67,106,90,0.1); color: #436a5a; border-color: rgba(67,106,90,0.2)">Approve</button>
+            </form>
+            <form method="POST" action="${basePath}/connections/${c.id}/reject" onsubmit="return confirm('Reject this connection request?')">
+              <button type="submit" class="btn btn-sm" style="color: #e85d2f; border-color: rgba(232,93,47,0.2)">Reject</button>
+            </form>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  </div>
+  ` : ''}
+
+  <div class="card p-6 mb-6">
+    <h2 style="font-family: var(--font-display)" class="text-xl font-semibold mb-1">Active Connections</h2>
+    <p class="text-sm mb-5" style="color: rgba(27,27,27,0.5)">Users you can exchange messages with.</p>
+    <div class="space-y-2">
+      ${connections.length > 0 ? connections.map(c => {
+        const otherName = c.requester_id === user.id ? c.target_name : c.requester_name;
+        const otherEmail = c.requester_id === user.id ? c.target_email : c.requester_email;
+        return '<div class="flex items-center justify-between rounded-xl p-3" style="background: rgba(0,0,0,0.02)"><div class="flex items-center gap-3"><span class="text-sm font-medium">' + escapeHtml(otherName) + '</span><span class="text-xs" style="color: rgba(27,27,27,0.35)">' + escapeHtml(otherEmail) + '</span><span class="badge" style="background: rgba(67,106,90,0.08); color: #436a5a">' + c.direction + '</span></div><form method="POST" action="' + basePath + '/connections/' + c.id + '/remove" onsubmit="return confirm(\'Remove this connection?\')"><button type="submit" class="btn btn-sm" style="color: rgba(27,27,27,0.35); border-color: rgba(0,0,0,0.08)">Remove</button></form></div>';
+      }).join('') : '<p class="text-sm" style="color: rgba(27,27,27,0.4)">No active connections yet. Request one below.</p>'}
+    </div>
+  </div>
+
+  ${outgoing.length > 0 ? `
+  <div class="card p-6 mb-6">
+    <h2 style="font-family: var(--font-display)" class="text-xl font-semibold mb-1">Your Pending Requests</h2>
+    <p class="text-sm mb-5" style="color: rgba(27,27,27,0.5)">Waiting for admin approval.</p>
+    <div class="space-y-2">
+      ${outgoing.map(c => `
+        <div class="flex items-center justify-between rounded-xl p-3" style="background: rgba(201,214,223,0.15)">
+          <div>
+            <span class="text-sm font-medium">${escapeHtml(c.target_name)}</span>
+            <span class="badge ml-2" style="background: rgba(232,93,47,0.08); color: #e85d2f">pending</span>
+            <span class="badge ml-1" style="background: rgba(201,214,223,0.3); color: rgba(27,27,27,0.55)">${c.direction}</span>
+          </div>
+          <span class="text-xs" style="color: rgba(27,27,27,0.3)">${c.created_at}</span>
+        </div>
+      `).join('')}
+    </div>
+  </div>
+  ` : ''}
+
+  <div class="card p-6">
+    <h2 style="font-family: var(--font-display)" class="text-xl font-semibold mb-1">Request Connection</h2>
+    <p class="text-sm mb-5" style="color: rgba(27,27,27,0.5)">Request to connect with another ClaudeNet user. An admin will review your request.</p>
+    <form method="POST" action="${basePath}/connections/request">
+      <div class="mb-4">
+        <label class="block text-sm font-medium mb-1.5">Connect with</label>
+        <select name="targetId" class="input" required>
+          <option value="">Select a user...</option>
+          ${allUsers.map(u => '<option value="' + u.id + '">' + escapeHtml(u.display_name) + ' (' + escapeHtml(u.email) + ')</option>').join('')}
+        </select>
+      </div>
+      <div class="mb-4">
+        <label class="block text-sm font-medium mb-1.5">Direction</label>
+        <div class="flex gap-3">
+          <label class="flex items-center gap-2 cursor-pointer rounded-lg px-4 py-2.5" style="background: rgba(67,106,90,0.06); border: 1px solid rgba(67,106,90,0.15)">
+            <input type="radio" name="direction" value="bidirectional" checked class="accent-[#436a5a]">
+            <div>
+              <span class="text-sm font-medium">Bidirectional</span>
+              <p class="text-xs" style="color: rgba(27,27,27,0.45)">Both sides can message each other</p>
+            </div>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer rounded-lg px-4 py-2.5" style="background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.06)">
+            <input type="radio" name="direction" value="one-way" class="accent-[#436a5a]">
+            <div>
+              <span class="text-sm font-medium">One-way</span>
+              <p class="text-xs" style="color: rgba(27,27,27,0.45)">Only you can message them</p>
+            </div>
+          </label>
+        </div>
+      </div>
+      <div class="mb-5">
+        <label class="block text-sm font-medium mb-1.5">Message (optional)</label>
+        <input type="text" name="message" placeholder="Why you want to connect..." class="input">
+      </div>
+      <button type="submit" class="btn btn-primary">Request Connection</button>
+    </form>
+  </div>
+` }) %>

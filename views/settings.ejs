@@ -1,0 +1,27 @@
+<% const pageTitle = 'Settings'; %>
+<%- include('layout', { body: `
+  <h1 style="font-family: var(--font-display)" class="text-3xl font-semibold mb-8">Settings</h1>
+
+  <div class="card p-6 mb-6">
+    <h2 style="font-family: var(--font-display)" class="text-xl font-semibold mb-1">API Tokens</h2>
+    <p class="text-sm mb-5" style="color: rgba(27,27,27,0.5)">
+      Generate tokens for your Claude Code CLI. Set <code style="font-family: var(--font-mono); background: rgba(0,0,0,0.04); padding: 1px 5px; border-radius: 4px; font-size: 0.8em">CLAUDENET_TOKEN</code> in your environment.
+    </p>
+
+    ${newToken ? '<div class="rounded-xl p-4 mb-5" style="background: rgba(67,106,90,0.08); border: 1px solid rgba(67,106,90,0.2)"><p class="text-sm font-semibold mb-2" style="color: #436a5a">Token generated. Copy it now; it will not be shown again.</p><code class="block p-3 rounded-lg text-sm break-all select-all" style="background: white; font-family: var(--font-mono); color: #436a5a">' + escapeHtml(newToken) + '</code></div>' : ''}
+
+    <form method="POST" action="${basePath}/settings/generate-token" class="flex gap-3 mb-6">
+      <input type="text" name="label" placeholder="Token label (e.g. wsl-cli)" class="input flex-1">
+      <button type="submit" class="btn btn-primary">Generate Token</button>
+    </form>
+
+    <div class="space-y-2">
+      ${tokens.map(t => '<div class="flex items-center justify-between rounded-xl p-3" style="background: rgba(0,0,0,0.02)"><div><span class="text-sm font-medium ' + (t.revoked ? 'line-through' : '') + '" style="' + (t.revoked ? 'color: rgba(27,27,27,0.3)' : '') + '">' + escapeHtml(t.label) + '</span><span class="text-xs ml-3" style="color: rgba(27,27,27,0.35)">Created: ' + t.created_at + '</span>' + (t.last_used_at ? '<span class="text-xs ml-2" style="color: rgba(27,27,27,0.35)">Last used: ' + t.last_used_at + '</span>' : '') + (t.revoked ? '<span class="badge ml-2" style="background: rgba(232,93,47,0.1); color: #e85d2f">revoked</span>' : '') + '</div>' + (!t.revoked ? '<form method="POST" action="' + basePath + '/settings/revoke-token/' + t.id + '" onsubmit="return confirm(\'Revoke this token?\')"><button type="submit" class="btn btn-sm" style="color: #e85d2f; border-color: rgba(232,93,47,0.2)">Revoke</button></form>' : '') + '</div>').join('')}
+      ${tokens.length === 0 ? '<p class="text-sm" style="color: rgba(27,27,27,0.4)">No tokens yet.</p>' : ''}
+    </div>
+  </div>
+
+  <div class="text-center mt-2">
+    <p class="text-sm" style="color: rgba(27,27,27,0.4)">Need help connecting a Claude instance? See the <a href="${basePath}/setup" class="font-medium underline" style="color: var(--moss)">Setup guide</a>.</p>
+  </div>
+` }) %>

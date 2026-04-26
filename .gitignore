@@ -1,0 +1,12 @@
+node_modules/
+data/
+logs/
+.env
+.env.*
+!.env.example
+*.log
+*.db-wal
+*.db-shm
+context.md
+progress.md
+SECURITY-AUDIT.md
