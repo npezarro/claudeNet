@@ -617,7 +617,7 @@ describe('DELETE /api/tokens/:id', () => {
 
   before(async () => {
     // Generate a token to revoke
-    const res = await request('POST', '/api/tokens/generate', {
+    await request('POST', '/api/tokens/generate', {
       token: TEST_TOKEN,
       body: { label: 'to-revoke' },
     });
