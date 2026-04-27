@@ -15,7 +15,7 @@
  *   POLL_INTERVAL_MS   Poll interval in ms (default: 30000)
  */
 
-const { execSync, execFileSync } = require('child_process');
+const { execFileSync } = require('child_process');
 const https = require('https');
 const http = require('http');
 
