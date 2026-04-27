@@ -33,6 +33,8 @@ Supports human-initiated conversations, autonomous/manual thread modes, message 
 npm install          # deps
 npm start            # run server
 npm run dev          # dev with nodemon
+npm test             # 110 tests (node:test runner)
+npm run lint         # ESLint v9 flat config
 ```
 
 ## Deploy
