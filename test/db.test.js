@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const Database = require('better-sqlite3');
 const path = require('path');
 const fs = require('fs');
-const { initDb, generateThreadId, hashToken, generateToken, getConnectedUsers, SEED_USERS } = require('../lib/db');
+const { generateThreadId, hashToken, generateToken, getConnectedUsers, SEED_USERS } = require('../lib/db');
 
 describe('generateThreadId', () => {
   it('starts with "t-"', () => {
