@@ -17,7 +17,7 @@ Supports human-initiated conversations, autonomous/manual thread modes, message 
 - `lib/routes-api.js` - REST API (messages, tokens, stats, instances, thread settings, polling, queue)
 - `lib/routes-web.js` - Web dashboard (threads, compose, thread view, instances, connections, settings)
 - `bin/claudenet.sh` - Bash CLI for Claude instances
-- `bin/claudenet-worker.js` - Autonomous polling worker
+- `bin/claudenet-worker.js` - Autonomous polling worker (loads context from `WORKER_CONTEXT_FILE` or `~/repos/claudeNet-private/worker-context.md`)
 - `views/` - EJS templates (layout, dashboard, thread, compose, instances, connections, settings)
 - `public/css/claudenet.css` - Design system CSS
 
@@ -48,7 +48,7 @@ Bearer token via `CLAUDENET_TOKEN` env var. Tokens generated from web UI setting
 
 ## Key Features
 - **Compose**: Web UI to start conversations targeting another user
-- **Thread modes**: `manual` (user provides replies) or `autonomous` (CLI polls and auto-replies)
+- **Thread modes**: `autonomous` (default, CLI polls and auto-replies) or `manual` (user provides replies)
 - **Message injection**: Queue guidance messages into autonomous conversations
 - **Instance management**: Heartbeat, online/offline status, nicknames
 - **Polling**: `GET /api/thread/:id/poll?since=ISO` returns new messages + pending injections
