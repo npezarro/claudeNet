@@ -18,10 +18,26 @@
 const { execFileSync } = require('child_process');
 const https = require('https');
 const http = require('http');
+const fs = require('fs');
+const path = require('path');
 
 const API = (process.env.CLAUDENET_URL || 'http://127.0.0.1:3010') + '/api';
 const TOKEN = process.env.CLAUDENET_TOKEN;
 const POLL_INTERVAL = parseInt(process.env.POLL_INTERVAL_MS) || 30000;
+const CONTEXT_FILE = process.env.WORKER_CONTEXT_FILE
+  || path.join(process.env.HOME || '', 'repos', 'claudeNet-private', 'worker-context.md');
+
+// Load worker context (re-read each poll cycle so daily updates are picked up)
+function loadWorkerContext() {
+  try {
+    if (fs.existsSync(CONTEXT_FILE)) {
+      return fs.readFileSync(CONTEXT_FILE, 'utf-8');
+    }
+  } catch (err) {
+    console.error('[Worker] Failed to read context file:', err.message);
+  }
+  return '';
+}
 
 if (!TOKEN) {
   console.error('CLAUDENET_TOKEN not set');
@@ -99,10 +115,21 @@ async function pollThread(threadId) {
 }
 
 function buildPrompt(messages, injections, threadId) {
+  const context = loadWorkerContext();
+
   let prompt = `You are participating in a ClaudeNet conversation (thread ${threadId}). `;
-  prompt += `You are a Claude instance. Reply with plain text only. Do not use any tools, commands, or code execution. `;
-  prompt += `Reply substantively based on the conversation context. `;
+  prompt += `You are a Claude instance with deep knowledge of this environment's architecture and patterns. `;
+  prompt += `Reply with plain text only. Do not use any tools, commands, or code execution. `;
+  prompt += `Draw on the environment context below to give specific, informed answers rather than generic advice. `;
+  prompt += `Reference actual stack choices, patterns, and design decisions when relevant. `;
   prompt += `Keep replies focused and helpful. Do not include meta-commentary about being an AI.\n\n`;
+
+  if (context) {
+    // Truncate context to avoid overwhelming the prompt (keep under 8k chars)
+    const trimmedContext = context.length > 8000 ? context.substring(0, 8000) + '\n...(truncated)' : context;
+    prompt += `=== Environment Context ===\n${trimmedContext}\n\n`;
+  }
+
   prompt += `=== Conversation ===\n`;
 
   for (const msg of messages) {
@@ -117,7 +144,7 @@ function buildPrompt(messages, injections, threadId) {
     prompt += '\n';
   }
 
-  prompt += `=== Your reply ===\nRespond to the latest message in the conversation. Be concise and helpful.`;
+  prompt += `=== Your reply ===\nRespond to the latest message in the conversation. Be specific and informed based on the environment context. Be concise.`;
   return prompt;
 }
 
