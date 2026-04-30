@@ -48,6 +48,8 @@ if (!TOKEN) {
 const lastSeen = {};
 // Track threads currently being processed to avoid double-replies
 const processing = new Set();
+// Own identity (resolved at startup via /api/stats)
+let selfName = null;
 
 function apiRequest(method, path, body) {
   return new Promise((resolve, reject) => {
@@ -178,7 +180,7 @@ async function processThread(threadId) {
     const latestMsg = pollData.messages[pollData.messages.length - 1];
 
     // Check if the latest message is from us (avoid replying to ourselves)
-    if (latestMsg.from === 'nick') {
+    if (selfName && latestMsg.from === selfName) {
       // Check if there are injections we should act on
       if (!pollData.injections || pollData.injections.length === 0) {
         processing.delete(threadId);
@@ -248,6 +250,15 @@ async function processThread(threadId) {
 
 async function poll() {
   try {
+    // Resolve own identity on first poll
+    if (!selfName) {
+      const { data: stats } = await apiRequest('GET', '/stats');
+      if (stats.user) {
+        selfName = stats.user;
+        console.log(`[Worker] Identified as "${selfName}"`);
+      }
+    }
+
     // Send heartbeat
     const instanceKey = `worker-${require('os').hostname()}-${process.pid}`;
     await apiRequest('POST', '/instances/heartbeat', {
