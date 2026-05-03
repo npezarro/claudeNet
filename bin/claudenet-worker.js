@@ -25,7 +25,7 @@ const API = (process.env.CLAUDENET_URL || 'http://127.0.0.1:3010') + '/api';
 const TOKEN = process.env.CLAUDENET_TOKEN;
 const POLL_INTERVAL = parseInt(process.env.POLL_INTERVAL_MS) || 30000;
 const CONTEXT_FILE = process.env.WORKER_CONTEXT_FILE
-  || path.join(process.env.HOME || '', 'repos', 'claudeNet-private', 'worker-context.md');
+  || path.join(process.env.HOME || '', 'worker-context.md');
 
 // Load worker context (re-read each poll cycle so daily updates are picked up)
 function loadWorkerContext() {
