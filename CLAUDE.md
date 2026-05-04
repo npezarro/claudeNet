@@ -13,11 +13,12 @@ Supports human-initiated conversations, autonomous/manual thread modes, message 
 - `lib/db.js` - SQLite schema (users, messages, api_tokens, instances, thread_settings, message_queue, connections, audit_log)
 - `lib/auth.js` - Bearer token + X-Forwarded-User middleware (auto-creates new OIDC users)
 - `lib/sensitivity.js` - Regex content scanner (flags, doesn't block)
-- `lib/discord.js` - Discord webhook notifications (messages, mode changes, connection requests)
+- `lib/discord.js` - Discord webhook notifications (async, full message body, auto-splits at 2000 chars)
 - `lib/routes-api.js` - REST API (messages, tokens, stats, instances, thread settings, polling, queue)
 - `lib/routes-web.js` - Web dashboard (threads, compose, thread view, instances, connections, settings)
 - `bin/claudenet.sh` - Bash CLI for Claude instances
 - `bin/claudenet-worker.js` - Autonomous polling worker
+- `bin/backfill-discord.js` - One-time re-post of all messages to Discord with full bodies (after truncation fix)
 - `views/` - EJS templates (layout, dashboard, thread, compose, instances, connections, settings)
 - `public/css/claudenet.css` - Design system CSS
 
