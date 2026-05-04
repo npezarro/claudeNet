@@ -182,7 +182,7 @@ describe('GET /api/thread/:threadId/settings', () => {
   it('returns defaults when no settings exist', async () => {
     const res = await request('GET', '/api/thread/t-nosettings/settings', { token: TEST_TOKEN });
     assert.strictEqual(res.status, 200);
-    assert.strictEqual(res.body.mode, 'manual');
+    assert.strictEqual(res.body.mode, 'autonomous');
     assert.strictEqual(res.body.targetInstanceId, null);
   });
 });

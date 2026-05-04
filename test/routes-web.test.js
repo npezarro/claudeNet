@@ -352,15 +352,15 @@ describe('GET /thread/:threadId', () => {
     assert.strictEqual(res.status, 404);
   });
 
-  it('shows default manual mode when no settings exist', async () => {
+  it('shows default autonomous mode when no settings exist', async () => {
     const tid = generateThreadId();
     db.prepare(
       "INSERT INTO messages (thread_id, from_user_id, to_user_id, subject, body, sensitivity_flags, source) VALUES (?, 1, 2, 'No settings', 'Test', '[]', 'cli')"
     ).run(tid);
     const res = await request('GET', `/thread/${tid}`, { email: ALICE_EMAIL });
     assert.strictEqual(res.status, 200);
-    // Template shows "Manual" button text when in manual mode
-    assert.ok(res.body.includes('Manual'));
+    // Template shows "Autonomous" button text when in autonomous mode
+    assert.ok(res.body.includes('Autonomous'));
   });
 });
 
