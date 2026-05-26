@@ -51,7 +51,7 @@ const processing = new Set();
 // Own identity (resolved at startup via /api/stats)
 let selfName = null;
 
-function apiRequest(method, path, body) {
+function apiRequest(method, path, body, retries = 3) {
   return new Promise((resolve, reject) => {
     const url = new URL(API + path);
     const isHttps = url.protocol === 'https:';
@@ -84,7 +84,18 @@ function apiRequest(method, path, body) {
         }
       });
     });
-    req.on('error', reject);
+
+    req.on('error', (err) => {
+      if (retries > 0 && (err.code === 'EAI_AGAIN' || err.code === 'ECONNRESET' || err.code === 'ETIMEDOUT')) {
+        console.warn(`[Worker] API request failed (${err.code}), retrying in 2s... (${retries} retries left)`);
+        setTimeout(() => {
+          apiRequest(method, path, body, retries - 1).then(resolve).catch(reject);
+        }, 2000);
+      } else {
+        reject(err);
+      }
+    });
+
     if (payload) req.write(payload);
     req.end();
   });
