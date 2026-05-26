@@ -5,6 +5,7 @@ require('dotenv').config({ path: path.join(__dirname, '.env') });
 const { initDb } = require('./lib/db');
 const { createApiRouter } = require('./lib/routes-api');
 const { createWebRouter } = require('./lib/routes-web');
+const { createShareRouter } = require('./lib/routes-share');
 
 const app = express();
 const PORT = process.env.PORT || 3010;
@@ -45,6 +46,10 @@ app.get('/health', (req, res) => {
 
 // API routes (Bearer token auth)
 app.use('/api', createApiRouter(db));
+
+// Public read-only share route (no auth) — mounted before the web router
+// so it bypasses OIDC. Only allowlisted threads are exposed.
+app.use('/', createShareRouter(db));
 
 // Web dashboard routes (Apache REMOTE_USER auth)
 app.use('/', createWebRouter(db));
