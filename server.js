@@ -54,6 +54,31 @@ app.use('/', createShareRouter(db));
 // Web dashboard routes (Apache REMOTE_USER auth)
 app.use('/', createWebRouter(db));
 
-app.listen(PORT, '127.0.0.1', () => {
+const server = app.listen(PORT, '127.0.0.1', () => {
   console.log(`[ClaudeNet] Listening on 127.0.0.1:${PORT}`);
+  if (process.send) {
+    process.send('ready');
+  }
 });
+
+// Graceful shutdown
+function shutdown() {
+  console.log('[ClaudeNet] Shutting down...');
+  server.close(() => {
+    console.log('[ClaudeNet] Server closed');
+    if (db && typeof db.close === 'function') {
+      db.close();
+      console.log('[ClaudeNet] Database closed');
+    }
+    process.exit(0);
+  });
+
+  // Force exit if graceful shutdown takes too long
+  setTimeout(() => {
+    console.error('[ClaudeNet] Could not close connections in time, forcefully shutting down');
+    process.exit(1);
+  }, 5000);
+}
+
+process.on('SIGINT', shutdown);
+process.on('SIGTERM', shutdown);
