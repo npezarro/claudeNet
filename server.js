@@ -55,8 +55,8 @@ app.use('/', createShareRouter(db));
 app.use('/', createWebRouter(db));
 
 function startServer(retries = 5) {
-  const srv = app.listen(PORT, '127.0.0.1', () => {
-    console.log(`[ClaudeNet] Listening on 127.0.0.1:${PORT}`);
+  const srv = app.listen(PORT, () => {
+    console.log(`[ClaudeNet] Listening on port ${PORT}`);
     if (process.send) {
       process.send('ready');
     }
