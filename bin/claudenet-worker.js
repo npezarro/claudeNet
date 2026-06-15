@@ -99,7 +99,7 @@ function apiRequest(method, path, body, retries = 3) {
     });
 
     req.on('error', (err) => {
-      if (retries > 0 && (err.code === 'EAI_AGAIN' || err.code === 'ECONNRESET' || err.code === 'ETIMEDOUT')) {
+      if (retries > 0 && (err.code === 'EAI_AGAIN' || err.code === 'ECONNRESET' || err.code === 'ETIMEDOUT' || err.code === 'ENOTFOUND')) {
         console.warn(`[Worker] API request failed (${err.code}), retrying in 2s... (${retries} retries left)`);
         setTimeout(() => {
           apiRequest(method, path, body, retries - 1).then(resolve).catch(reject);
