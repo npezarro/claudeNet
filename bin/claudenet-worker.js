@@ -59,7 +59,7 @@ const processing = new Set();
 // Own identity (resolved at startup via /api/stats)
 let selfName = null;
 
-function apiRequest(method, path, body, retries = 3) {
+function apiRequest(method, path, body, retries = 10) {
   return new Promise((resolve, reject) => {
     const url = new URL(API + path);
     const isHttps = url.protocol === 'https:';
