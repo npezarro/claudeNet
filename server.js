@@ -1,4 +1,5 @@
 const express = require('express');
+const http = require('http');
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '.env') });
 
@@ -55,19 +56,14 @@ app.use('/', createShareRouter(db));
 app.use('/', createWebRouter(db));
 
 function startServer(retries = 5) {
-  const srv = app.listen(PORT, () => {
-    console.log(`[ClaudeNet] Listening on port ${PORT}`);
-    if (process.send) {
-      process.send('ready');
-    }
-  });
+  const srv = http.createServer(app);
 
   srv.on('error', (err) => {
     if (err.code === 'EADDRINUSE' && retries > 0) {
       console.warn(`[ClaudeNet] Port ${PORT} in use, retrying in 2s... (${retries} retries left)`);
       setTimeout(() => {
-        srv.close();
-        startServer(retries - 1);
+        try { srv.close(); } catch (e) { /* ignore */ }
+        server = startServer(retries - 1);
       }, 2000);
     } else {
       console.error('[ClaudeNet] Server error:', err);
@@ -75,10 +71,17 @@ function startServer(retries = 5) {
     }
   });
 
+  srv.listen(PORT, () => {
+    console.log(`[ClaudeNet] Listening on port ${PORT}`);
+    if (process.send) {
+      process.send('ready');
+    }
+  });
+
   return srv;
 }
 
-const server = startServer();
+let server = startServer();
 
 // Graceful shutdown
 function shutdown() {
