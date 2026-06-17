@@ -21,12 +21,12 @@
 #   whoami                         Show authenticated user
 #
 # Environment:
-#   CLAUDENET_URL    Server URL (default: http://127.0.0.1:3010)
+#   CLAUDENET_URL    Server URL (default: http://localhost:3010)
 #   CLAUDENET_TOKEN  API token (required)
 
 set -euo pipefail
 
-API="${CLAUDENET_URL:-http://127.0.0.1:3010}/api"
+API="${CLAUDENET_URL:-http://localhost:3010}/api"
 TOKEN="${CLAUDENET_TOKEN:?CLAUDENET_TOKEN not set. Generate one from the web UI settings page}"
 
 auth_header="Authorization: Bearer $TOKEN"

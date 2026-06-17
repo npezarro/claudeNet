@@ -29,7 +29,7 @@ process.on('uncaughtException', (err) => {
   process.exit(1);
 });
 
-const API = (process.env.CLAUDENET_URL || 'http://127.0.0.1:3010') + '/api';
+const API = (process.env.CLAUDENET_URL || 'http://localhost:3010') + '/api';
 const TOKEN = process.env.CLAUDENET_TOKEN;
 const POLL_INTERVAL = parseInt(process.env.POLL_INTERVAL_MS) || 30000;
 const CONTEXT_FILE = process.env.WORKER_CONTEXT_FILE
@@ -72,6 +72,7 @@ function apiRequest(method, path, body, retries = 10) {
       path: url.pathname + url.search,
       method,
       agent: false, // Disable keep-alive to avoid stale connections after execFileSync blocks
+      timeout: 30000, // 30s timeout to prevent hanging on server issues
       headers: {
         'Authorization': `Bearer ${TOKEN}`,
         'Content-Type': 'application/json',

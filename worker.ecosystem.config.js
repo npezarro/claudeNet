@@ -6,7 +6,7 @@ module.exports = {
     script: 'bin/claudenet-worker.js',
     cwd: __dirname,
     env: {
-      CLAUDENET_URL: 'http://127.0.0.1:3010', // Use local loopback to avoid DNS issues with public endpoint
+      CLAUDENET_URL: 'http://localhost:3010', // Use local loopback to avoid DNS issues with public endpoint
       POLL_INTERVAL_MS: '30000',
       // CLAUDENET_TOKEN set in shell env
     },
