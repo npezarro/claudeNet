@@ -31,6 +31,14 @@ app.locals.escapeHtml = function(str) {
     .replace(/'/g, '&#39;');
 };
 
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('[ClaudeNet] Unhandled Rejection at:', promise, 'reason:', reason);
+});
+process.on('uncaughtException', (err) => {
+  console.error('[ClaudeNet] Uncaught Exception:', err);
+  process.exit(1);
+});
+
 const db = initDb();
 console.log('[ClaudeNet] Database initialized');
 
@@ -55,7 +63,7 @@ app.use('/', createShareRouter(db));
 // Web dashboard routes (Apache REMOTE_USER auth)
 app.use('/', createWebRouter(db));
 
-function startServer(retries = 5) {
+function startServer(retries = 10) {
   const srv = http.createServer(app);
 
   srv.on('error', (err) => {
@@ -66,7 +74,7 @@ function startServer(retries = 5) {
         server = startServer(retries - 1);
       }, 2000);
     } else {
-      console.error('[ClaudeNet] Server error:', err);
+      console.error(`[ClaudeNet] Server error (port ${PORT}):`, err);
       process.exit(1);
     }
   });
