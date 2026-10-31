@@ -21,6 +21,14 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('[Worker] Unhandled Rejection at:', promise, 'reason:', reason);
+});
+process.on('uncaughtException', (err) => {
+  console.error('[Worker] Uncaught Exception:', err);
+  process.exit(1);
+});
+
 const API = (process.env.CLAUDENET_URL || 'http://127.0.0.1:3010') + '/api';
 const TOKEN = process.env.CLAUDENET_TOKEN;
 const POLL_INTERVAL = parseInt(process.env.POLL_INTERVAL_MS) || 30000;
@@ -77,11 +85,16 @@ function apiRequest(method, path, body, retries = 3) {
       let data = '';
       res.on('data', (d) => { data += d; });
       res.on('end', () => {
+        let parsedData;
         try {
-          resolve({ status: res.statusCode, data: JSON.parse(data) });
+          parsedData = JSON.parse(data);
         } catch {
-          resolve({ status: res.statusCode, data });
+          parsedData = data;
         }
+        if (res.statusCode >= 400) {
+          console.error(`[Worker] API error: ${method} ${path} returned ${res.statusCode}:`, parsedData);
+        }
+        resolve({ status: res.statusCode, data: parsedData });
       });
     });
 
@@ -112,9 +125,13 @@ async function getAutonomousThreads() {
 
   const autonomous = [];
   for (const threadId of threadIds) {
-    const { data: settings } = await apiRequest('GET', `/thread/${threadId}/settings`);
-    if (settings.mode === 'autonomous') {
-      autonomous.push(threadId);
+    try {
+      const { status, data: settings } = await apiRequest('GET', `/thread/${threadId}/settings`);
+      if (status === 200 && settings && settings.mode === 'autonomous') {
+        autonomous.push(threadId);
+      }
+    } catch (err) {
+      console.warn(`[Worker] Failed to get settings for thread ${threadId}:`, err.message);
     }
   }
   return autonomous;
@@ -183,23 +200,33 @@ async function processThread(threadId) {
 
   try {
     const pollData = await pollThread(threadId);
+    console.log(`[Worker] pollData for ${threadId}:`, JSON.stringify(pollData).substring(0, 500));
     if (!pollData.messages || pollData.messages.length === 0) {
-      processing.delete(threadId);
-      return;
-    }
-
-    const latestMsg = pollData.messages[pollData.messages.length - 1];
-
-    // Check if the latest message is from us (avoid replying to ourselves)
-    if (selfName && latestMsg.from === selfName) {
-      // Check if there are injections we should act on
-      if (!pollData.injections || pollData.injections.length === 0) {
+      if (pollData.injections && pollData.injections.length > 0) {
+        console.log(`[Worker] Thread ${threadId}: No new messages, but has ${pollData.injections.length} injection(s)`);
+      } else {
         processing.delete(threadId);
         return;
       }
     }
 
-    console.log(`[Worker] Thread ${threadId}: ${pollData.messages.length} messages, ${(pollData.injections || []).length} injections`);
+    const latestMsg = pollData.messages && pollData.messages.length > 0
+      ? pollData.messages[pollData.messages.length - 1]
+      : null;
+
+    // Check if the latest message is from us (avoid replying to ourselves)
+    if (selfName && latestMsg && latestMsg.from === selfName) {
+      // Check if there are injections we should act on
+      if (!pollData.injections || pollData.injections.length === 0) {
+        processing.delete(threadId);
+        return;
+      }
+      console.log(`[Worker] Thread ${threadId}: Latest message is from us, but has ${pollData.injections.length} injection(s)`);
+    }
+
+    const messageCount = pollData.messages ? pollData.messages.length : 0;
+    const injectionCount = pollData.injections ? pollData.injections.length : 0;
+    console.log(`[Worker] Thread ${threadId}: ${messageCount} messages, ${injectionCount} injections`);
 
     // Get full thread for context
     const { data: fullThread } = await apiRequest('GET', `/thread/${threadId}`);
